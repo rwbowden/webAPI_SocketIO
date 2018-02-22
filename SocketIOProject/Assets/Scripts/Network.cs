@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using SocketIO;
+using System;
 
 public class Network : MonoBehaviour
 {
-    static SocketIOComponent socket;
+    public static SocketIOComponent socket;
     public GameObject playerPrefab;
 
     public Dictionary<string, GameObject> players;
@@ -17,7 +18,30 @@ public class Network : MonoBehaviour
         socket.On("open", OnConnected);
         socket.On("spawn player", OnSpawned);
         socket.On("disconnected", OnDisconnected);
+        socket.On("move", OnMove);
         players = new Dictionary<string, GameObject>();
+    }
+
+    void OnMove(SocketIOEvent e)
+    {
+        //Debug.Log("Networked player is moving" + e.data);
+        var id = e.data["id"].ToString();
+
+        var player = players[id];
+
+
+        var netMove = player.GetComponent<CharacterMovement>();
+
+        var pos = new Vector3(GetFloatFromJson(e.data, "x"), 0 ,GetFloatFromJson(e.data, "y"));
+
+        netMove.NetworkMovement(pos);
+
+        Debug.Log("Pos: " + pos);
+    }
+
+    float GetFloatFromJson(JSONObject data, string key)
+    {
+        return float.Parse(data[key].ToString().Replace("\"", ""));
     }
 
     // Tells us we are connected

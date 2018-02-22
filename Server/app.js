@@ -21,8 +21,10 @@ io.on('connection', function(socket){
         console.log("Adding a player", playerId);
     });
         
-    socket.on('playerhere', function(data){
-        console.log("Player is logged in");
+    socket.on('move', function(data){
+        data.id = thisPlayerId;
+        console.log("Player position is: ",  JSON.stringify(data));
+        socket.broadcast.emit('move', data);
     });
 
     socket.on('disconnect', function(){
