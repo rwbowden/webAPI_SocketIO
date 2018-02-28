@@ -34,7 +34,10 @@ public class Network : MonoBehaviour
 
         var pos = new Vector3(GetFloatFromJson(e.data, "x"), 0 ,GetFloatFromJson(e.data, "y"));
 
-        netMove.NetworkMovement(pos);
+        var h = GetFloatFromJson(e.data, "h");
+        var v = GetFloatFromJson(e.data, "v");
+
+        netMove.NetworkMovement(pos, h, v);
 
         Debug.Log("Pos: " + pos);
     }

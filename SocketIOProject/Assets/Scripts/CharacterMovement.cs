@@ -13,6 +13,8 @@ public class CharacterMovement : MonoBehaviour
 	private Animator anim;
 	private Rigidbody playerRigidbody;
 
+    public bool active = false;
+
 	void Awake()
 	{
 		//Get references to components
@@ -22,6 +24,7 @@ public class CharacterMovement : MonoBehaviour
 
 	void FixedUpdate()
 	{
+        if (!active) return;
 		//Store input axes
 		float h = Input.GetAxis("Horizontal");
 		float v = Input.GetAxis ("Vertical");
@@ -33,9 +36,22 @@ public class CharacterMovement : MonoBehaviour
 		//Animating(movementSpeed);
 	}
 
-    public void NetworkMovement(Vector3 pos)
+    public void NetworkMovement(Vector3 pos, float h, float v)
     {
         transform.position = pos;
+        Animating(h, v);
+        if (h != 0f || v != 0f)
+        {
+            NetworkRotate(h, v);
+        }
+    }
+
+    void NetworkRotate(float h, float v)
+    {
+        Vector3 targetDirection = new Vector3(h, 0f, v);
+        Quaternion targetRotation = Quaternion.LookRotation(targetDirection, Vector3.up);
+        Quaternion newRotation = Quaternion.Lerp(GetComponent<Rigidbody>().rotation, targetRotation, turnSmoothing * Time.deltaTime);
+        transform.rotation = newRotation;
     }
 
 	void Move(float h, float v)
